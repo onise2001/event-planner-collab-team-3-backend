@@ -32,4 +32,5 @@ networks:
   shared:
     external: true
 
-volumes: postgres_data
+volumes: 
+  postgres_data:
