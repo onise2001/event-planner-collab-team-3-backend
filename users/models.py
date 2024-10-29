@@ -18,8 +18,10 @@ class CustomUserManage(BaseUserManager):
 
 class CustomUser(AbstractUser):
     username = None
+    name = models.TextField()
     email = models.EmailField(unique=True)
-    profilePicture = models.ImageField()
+    profilePicture = models.ImageField(blank=True, null=True)
+    phoneNumber = models.TextField()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
