@@ -2,7 +2,7 @@ name: Collaborative project ci/cd pipline
 
 on:
   push:
-    breanches: [main]
+    branches: [main]
 
 env:
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
