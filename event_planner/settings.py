@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
+from .storage_backends import MediaStorage, StaticStorage
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -100,19 +101,19 @@ WSGI_APPLICATION = 'event_planner.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-    
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'team-3-db',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.getenv('POSTGRES_DB'),
+    #     'USER': os.getenv('POSTGRES_USER'),
+    #     'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+    #     'HOST': 'team-3-db',
+    #     'PORT': '5432',
+    # }
 }
 
 
@@ -146,18 +147,20 @@ USE_I18N = True
 
 USE_TZ = True
 
-STORAGES = {
-    "default": {
-        "BACKEND" : "storages.backends.s3boto3.S3Boto3Storage"
-    },
+# STORAGES = {
+#     "default": {
+#         "BACKEND" : "storages.backends.s3boto3.S3Boto3Storage"
+#     },
    
-    'staticfiles' :{ 
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage"
-    }
-}
+#     'staticfiles' :{ 
+#         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage"
+#     }
+# }
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+
 
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -166,16 +169,24 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME =  os.getenv('AWS_S3_REGION_NAME')
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "BUCKET_NAME": AWS_STORAGE_BUCKET_NAME,
+        "LOCATION": "event-planner-team-3-media"
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    }
+}
 
-AWS_STATIC_LOCATION = 'event-planner-static'
-AWS_MEDIA_LOCATION = 'event-planner-media'
 
 
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/event-planner-team-3-static/'
 
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/event-planner-static/'
-
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/event-planner-media/'
-#STATIC_ROOT = os.path.join(BASE_DIR, '/staticfiles/')
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/event-planner-team-3-media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

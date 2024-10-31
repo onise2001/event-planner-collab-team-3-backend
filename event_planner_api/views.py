@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from .models import  Event, RSVP, Invitation, EventInfo
-from .serializers import EventSerializer, RSVPSerializer, InvitationSerializer, EventInfoSerializer
+from .models import Event, RSVP, Invitation, EventInfo,FileUpload
+from .serializers import EventSerializer, RSVPSerializer, InvitationSerializer, EventInfoSerializer, FileUploadSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .permissions import IsOrganizer
+from .filters import EventFilesFilter
 
 # Create your views here.
 
@@ -100,3 +101,37 @@ class EventInfoViewSet(GenericViewSet):
             serializer = self.serializer_class(event)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_404_NOT_FOUND)
+    
+
+
+
+
+class FileUploadViewSet(GenericViewSet):
+    queryset = FileUpload.objects.all()
+    serializer_class = FileUploadSerializer
+    filter_backends = [EventFilesFilter]
+
+
+    def create(self,request):
+        try:
+            event = Event.objects.get(pk=request.data.get('event_id'))
+        except Event.DoesNotExist:
+            return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+        file_list = request.FILES.getlist('file')
+        print(file_list)
+        file_instances = []
+
+        for file in file_list:
+            file_instance = FileUpload(event=event, file=file)
+            file_instance.save()
+            file_instances.append(file_instance)
+        print(file_instances)
+        serializer = self.serializer_class(file_instances, many=True)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    
+
+    def list(self,request):
+        serializer = self.serializer_class(self.queryset, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

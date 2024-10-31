@@ -43,4 +43,8 @@ class EventInfo(models.Model):
 class Comment(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     text = models.TextField(blank=True,null=True)
+
+
+class FileUpload(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='event_files')
     file = models.FileField(blank=True, null=True)

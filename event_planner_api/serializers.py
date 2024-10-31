@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, RSVP, Invitation, EventInfo, Comment
+from .models import Event, RSVP, Invitation, EventInfo, Comment, FileUpload
 from users.serializers import CustomUserSerializer
 from users.models import CustomUser
 
@@ -63,4 +63,12 @@ class EventInfoSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
+        fields = '__all__'
+
+
+class FileUploadSerializer(serializers.ModelSerializer):
+    event = EventSerializer(read_only=True)
+    event_id = serializers.PrimaryKeyRelatedField(queryset=Event.objects.all(), write_only=True, source='event')
+    class Meta:
+        model = FileUpload
         fields = '__all__'
