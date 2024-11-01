@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .permissions import IsOrganizer
-from .filters import EventFilesFilter
+from .filters import EventFilesFilter,RSVPFilesFilter
 
 # Create your views here.
 
@@ -35,6 +35,7 @@ class EventViewSet(ModelViewSet):
 class RSVPViewSet(ModelViewSet):
     queryset = RSVP.objects.all()
     serializer_class = RSVPSerializer
+    filter_backends = [RSVPFilesFilter]
     
     
     def perform_create(self, serializer):
@@ -89,10 +90,11 @@ class InvitaionViewSet(ModelViewSet):
 class EventInfoViewSet(GenericViewSet):
     queryset = EventInfo.objects.all()
     serializer_class = EventInfoSerializer
+    filter_backends = [RSVPFilesFilter]
     lookup_field = 'pk'
 
     def list(self,requset):
-        serializer = self.serializer_class(self.queryset, many=True)
+        serializer = self.serializer_class(self.filter_queryset(self.queryset).first())
         return Response(data=serializer.data, status=status.HTTP_200_OK)
     
     def retrieve(self,request, pk=None):

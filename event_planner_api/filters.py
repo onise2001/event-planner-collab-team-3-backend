@@ -20,3 +20,16 @@ class EventFilesFilter(BaseFilterBackend):
             queryset = queryset.filter(event__id=event_id)
 
         return queryset
+    
+
+
+
+class RSVPFilesFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        event_id = request.query_params.get('event_id')
+
+        if event_id:
+            queryset = queryset.filter(event__id=event_id)
+
+        return queryset
+    
